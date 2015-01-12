@@ -25,5 +25,13 @@ public abstract class Dice {
 	public void setDice(ArrayList<Die> dice) {
 		this.dice = dice;
 	}
+	
+	public String toString() {
+		String s = "|";
+		for(Die d: dice) {
+			s += d.toString() + "|";
+		}
+		return s;
+	}
 
 }

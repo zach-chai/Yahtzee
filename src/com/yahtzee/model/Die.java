@@ -34,5 +34,9 @@ public class Die {
 		Random rand = new Random();
 		value = rand.nextInt(6) + 1;
 	}
+	
+	public String toString() {
+		return value+"";
+	}
 
 }
