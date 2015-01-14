@@ -75,7 +75,7 @@ public class AppClient implements Runnable{
 			streamOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			if(thread == null) {
-				client = new ClientThread(this, socket);
+//				client = new ClientThread(this, socket);
 				thread = new Thread(this);
 				thread.start();
 			}

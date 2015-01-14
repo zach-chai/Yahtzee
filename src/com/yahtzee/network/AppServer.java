@@ -98,7 +98,7 @@ public class AppServer implements Runnable {
 	
 	private void addThread(Socket socket) {
 		if (clientCount < clients.length) {
-			System.out.println("Client accepted" + socket);
+			System.out.println("Client accepted" + socket + "\n");
 			clients[clientCount] = new ServerThread(this, socket);
 			
 			try {

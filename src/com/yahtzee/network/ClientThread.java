@@ -5,14 +5,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import com.yahtzee.views.GUIClient;
+
 public class ClientThread extends Thread {
 	
 	private Socket socket = null;
-	private AppClient client = null;
+	private GUIClient client = null;
 	private BufferedReader streamIn = null;
 	private boolean done = false;
 
-	public ClientThread(AppClient client, Socket socket) {
+//	public ClientThread(AppClient client, Socket socket) {
+//		this.client = client;
+//		this.socket = socket;
+//		this.open();
+//		this.start();
+//	}
+	
+	public ClientThread(GUIClient client, Socket socket) {
 		this.client = client;
 		this.socket = socket;
 		this.open();
@@ -24,7 +33,7 @@ public class ClientThread extends Thread {
 			streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch(IOException e) {
 			System.out.println("Error getting input stream");
-			client.stop();
+			client.disconnect();
 		}
 	}
 	
