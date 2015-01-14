@@ -1,16 +1,15 @@
 package com.yahtzee.model;
 
+import com.yahtzee.utils.Config;
+
 public class MainDice extends Dice {
-	
-	//constants
-	private static final int INITIAL_DICE = 5;
 	
 	public MainDice() {
 		loadDice();
 	}
 	
 	public void loadDice() {
-		for(int i = 0; i < INITIAL_DICE; i++) {
+		for(int i = 0; i < Config.MAX_DICE; i++) {
 			this.addDie();
 		}
 	}

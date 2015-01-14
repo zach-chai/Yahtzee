@@ -24,13 +24,14 @@ public class GUIClient extends Applet {
 	private String serverPort;
 	private String serverName;
 	
-	private TextField input = null;
-	private TextArea display = null;
-	private Button exit = null;
-	private Button connect = null;
-	private Button rollDice = null;
-	private Button send = null;
-	private Label label = null;
+	private TextField input;
+	private TextArea display;
+	private Button exit;
+	private Button connect;
+	private Button rollDice;
+	private Button send;
+	private Button diceButtons[];
+	private Label label;
 	
 //	public GUIClient() {
 //		
@@ -65,13 +66,23 @@ public class GUIClient extends Applet {
 		connect = new Button("Connect");
 		rollDice = new Button("Roll Dice");
 		
+		diceButtons = new Button[Config.MAX_DICE];
+		for(int i = 0; i < diceButtons.length; i++) {
+			diceButtons[i] = new Button(i+"");
+		}
+
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension btDim = new Dimension(85, 25);
+		Dimension diceDim = new Dimension(40, 40);
 		
 		exit.setPreferredSize(btDim);
 		send.setPreferredSize(btDim);
 		connect.setPreferredSize(btDim);
 		rollDice.setPreferredSize(btDim);
+		
+		for(Button b: diceButtons) {
+			b.setPreferredSize(diceDim);
+		}
 		
 		Panel buttons = new Panel();
 		buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -80,7 +91,7 @@ public class GUIClient extends Applet {
 		buttons.add(send);
 		buttons.add(rollDice);
 		
-		label = new Label("Simple Client Applet", Label.CENTER);
+		label = new Label("Yahtzee", Label.CENTER);
 		label.setFont(new Font("Helvetica", Font.BOLD, 14));
 		label.setSize(350, 20);
 		
@@ -89,9 +100,16 @@ public class GUIClient extends Applet {
 		title.setLayout(new FlowLayout(FlowLayout.CENTER));
 		title.add(label);
 		
+		Panel rollingDice = new Panel();
+		rollingDice.setLayout(new FlowLayout(FlowLayout.CENTER));
+		for(Button b: diceButtons) {
+			rollingDice.add(b);
+		}
+		
 		Panel south = new Panel();
-		south.setLayout(new GridLayout(2, 1));
+		south.setLayout(new GridLayout(3, 1));
 		south.add(input);
+		south.add(rollingDice);
 		south.add(buttons);
 		
 		setLayout(new BorderLayout());
