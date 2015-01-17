@@ -7,19 +7,23 @@ public abstract class Dice {
 	protected ArrayList<Die> dice = new ArrayList<Die>();
 
 	public void removeDie(Die die) {
-		dice.remove(die);
+		this.dice.remove(die);
 	}
 	
 	public void addDie() {
-		dice.add(new Die());
+		this.dice.add(new Die());
 	}
 
 	public void addDie(Die die) {
-		dice.add(die);
+		this.dice.add(die);
+	}
+	
+	public int size() {
+		return this.dice.size();
 	}
 
 	public ArrayList<Die> getDice() {
-		return dice;
+		return this.dice;
 	}
 
 	public void setDice(ArrayList<Die> dice) {

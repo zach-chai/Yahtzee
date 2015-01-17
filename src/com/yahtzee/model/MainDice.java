@@ -5,10 +5,11 @@ import com.yahtzee.utils.Config;
 public class MainDice extends Dice {
 	
 	public MainDice() {
-		loadDice();
+		reloadDice();
 	}
 	
-	public void loadDice() {
+	public void reloadDice() {
+		this.dice.clear();
 		for(int i = 0; i < Config.MAX_DICE; i++) {
 			this.addDie();
 		}

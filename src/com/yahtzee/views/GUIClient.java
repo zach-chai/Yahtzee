@@ -30,7 +30,8 @@ public class GUIClient extends Applet {
 	private Button connect;
 	private Button rollDice;
 	private Button send;
-	private Button diceButtons[];
+	private Button rollingDiceButtons[];
+	private Button savedDiceButtons[];
 	private Label label;
 	
 //	public GUIClient() {
@@ -66,10 +67,12 @@ public class GUIClient extends Applet {
 		connect = new Button("Connect");
 		rollDice = new Button("Roll Dice");
 		
-		diceButtons = new Button[Config.MAX_DICE];
-		for(int i = 0; i < diceButtons.length; i++) {
-			diceButtons[i] = new Button(i+"");
+		rollingDiceButtons = new Button[Config.MAX_DICE];
+		for(int i = 0; i < rollingDiceButtons.length; i++) {
+			rollingDiceButtons[i] = new Button("6");
 		}
+		
+		savedDiceButtons = new Button[Config.MAX_DICE];
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension btDim = new Dimension(85, 25);
@@ -80,7 +83,7 @@ public class GUIClient extends Applet {
 		connect.setPreferredSize(btDim);
 		rollDice.setPreferredSize(btDim);
 		
-		for(Button b: diceButtons) {
+		for(Button b: rollingDiceButtons) {
 			b.setPreferredSize(diceDim);
 		}
 		
@@ -102,14 +105,18 @@ public class GUIClient extends Applet {
 		
 		Panel rollingDice = new Panel();
 		rollingDice.setLayout(new FlowLayout(FlowLayout.CENTER));
-		for(Button b: diceButtons) {
+		for(Button b: rollingDiceButtons) {
 			rollingDice.add(b);
 		}
 		
+		Panel savedDice = new Panel();
+		savedDice.setLayout(new FlowLayout(FlowLayout.CENTER));
+		
 		Panel south = new Panel();
-		south.setLayout(new GridLayout(3, 1));
+		south.setLayout(new GridLayout(4, 1));
 		south.add(input);
 		south.add(rollingDice);
+		south.add(savedDice);
 		south.add(buttons);
 		
 		setLayout(new BorderLayout());
@@ -122,7 +129,9 @@ public class GUIClient extends Applet {
 		send.setEnabled(false);
 		connect.setEnabled(true);
 		rollDice.setEnabled(false);
-		
+		for(Button b: rollingDiceButtons) {
+			b.setEnabled(false);
+		}
 	}
 	
 	public boolean action(Event e, Object o) {
@@ -147,11 +156,32 @@ public class GUIClient extends Applet {
 			send();
 			input.requestFocus();
 		} else if (e.target == rollDice) {
-//			this.player.rollDice();
+			this.player.rollDice();
+			int size = this.player.getMainDice().size();
+			displayMsg(size+"");
+			for(int i = 0; i < size; i++) {
+				rollingDiceButtons[i].setLabel(this.player.getMainDice().getDice().get(i).toString());
+				rollingDiceButtons[i].setEnabled(true);
+			}
 //			this.refresh();
+		} 
+
+		for(Button b: rollingDiceButtons) {
+			if(e.target == b) {
+//				this.player.getMainDice().getb.getLabel()
+			}
 		}
 		
 		return true;
+	}
+	
+	public boolean diceClick(Event e) {
+		for(Button b: rollingDiceButtons) {
+			if(e.target == b) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void send() {
