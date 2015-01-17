@@ -6,8 +6,10 @@ public abstract class Dice {
 
 	protected ArrayList<Die> dice = new ArrayList<Die>();
 
-	public void removeDie(Die die) {
+	public Die removeDie(Die die) {
+		Die d = die;
 		this.dice.remove(die);
+		return d;
 	}
 	
 	public void addDie() {

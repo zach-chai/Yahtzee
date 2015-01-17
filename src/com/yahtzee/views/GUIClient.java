@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
+import com.yahtzee.model.Die;
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
@@ -24,33 +26,20 @@ public class GUIClient extends Applet {
 	private String serverPort;
 	private String serverName;
 	
+	private Panel south;
+	private Panel rolling;
+	private Panel saved;
+	private Panel buttons;
+	
 	private TextField input;
 	private TextArea display;
 	private Button exit;
 	private Button connect;
 	private Button rollDice;
 	private Button send;
-	private Button rollingDiceButtons[];
-	private Button savedDiceButtons[];
+	private ArrayList<Button> rollingDiceButtons;
+	private ArrayList<Button> savedDiceButtons;
 	private Label label;
-	
-//	public GUIClient() {
-//		
-//		serverName = Config.DEFAULT_HOST;
-//		serverPort = Config.DEFAULT_PORT+"";
-//		
-//		player = new Player();
-//		
-//		input = new TextField();
-//		display = new TextArea();
-//		
-//		exit = new Button("Exit");
-//		send = new Button("Send");
-//		connect = new Button("Connect");
-//		rollDice = new Button("Roll Dice");
-//		
-//		init();
-//	}
 	
 	public void init() {
 		
@@ -59,6 +48,9 @@ public class GUIClient extends Applet {
 		
 		player = new Player();
 		
+		rollingDiceButtons = new ArrayList<Button>();		
+		savedDiceButtons = new ArrayList<Button>();
+		
 		input = new TextField();
 		display = new TextArea();
 		
@@ -66,28 +58,16 @@ public class GUIClient extends Applet {
 		send = new Button("Send");
 		connect = new Button("Connect");
 		rollDice = new Button("Roll Dice");
-		
-		rollingDiceButtons = new Button[Config.MAX_DICE];
-		for(int i = 0; i < rollingDiceButtons.length; i++) {
-			rollingDiceButtons[i] = new Button("6");
-		}
-		
-		savedDiceButtons = new Button[Config.MAX_DICE];
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension btDim = new Dimension(85, 25);
-		Dimension diceDim = new Dimension(40, 40);
 		
 		exit.setPreferredSize(btDim);
 		send.setPreferredSize(btDim);
 		connect.setPreferredSize(btDim);
 		rollDice.setPreferredSize(btDim);
 		
-		for(Button b: rollingDiceButtons) {
-			b.setPreferredSize(diceDim);
-		}
-		
-		Panel buttons = new Panel();
+		buttons = new Panel();
 		buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 		buttons.add(connect);
 		buttons.add(exit);
@@ -103,20 +83,31 @@ public class GUIClient extends Applet {
 		title.setLayout(new FlowLayout(FlowLayout.CENTER));
 		title.add(label);
 		
-		Panel rollingDice = new Panel();
-		rollingDice.setLayout(new FlowLayout(FlowLayout.CENTER));
-		for(Button b: rollingDiceButtons) {
-			rollingDice.add(b);
+		this.rolling = new Panel();
+		this.rolling.setLayout(new FlowLayout(FlowLayout.CENTER));
+		for(int i = 0; i < Config.MAX_DICE; i++) {
+			Button b = new Button("");
+			b.setPreferredSize(new Dimension(40, 40));
+			b.setEnabled(false);
+			this.rollingDiceButtons.add(b);
+			this.rolling.add(b);
+		}
+
+		saved = new Panel();
+		saved.setLayout(new FlowLayout(FlowLayout.CENTER));
+		for(int i = 0; i < Config.MAX_DICE; i++) {
+			Button b = new Button("");
+			b.setPreferredSize(new Dimension(40, 40));
+			b.setEnabled(false);
+			this.savedDiceButtons.add(b);
+			this.saved.add(b);
 		}
 		
-		Panel savedDice = new Panel();
-		savedDice.setLayout(new FlowLayout(FlowLayout.CENTER));
-		
-		Panel south = new Panel();
+		south = new Panel();
 		south.setLayout(new GridLayout(4, 1));
 		south.add(input);
-		south.add(rollingDice);
-		south.add(savedDice);
+		south.add(rolling);
+		south.add(saved);
 		south.add(buttons);
 		
 		setLayout(new BorderLayout());
@@ -129,9 +120,6 @@ public class GUIClient extends Applet {
 		send.setEnabled(false);
 		connect.setEnabled(true);
 		rollDice.setEnabled(false);
-		for(Button b: rollingDiceButtons) {
-			b.setEnabled(false);
-		}
 	}
 	
 	public boolean action(Event e, Object o) {
@@ -157,31 +145,41 @@ public class GUIClient extends Applet {
 			input.requestFocus();
 		} else if (e.target == rollDice) {
 			this.player.rollDice();
-			int size = this.player.getMainDice().size();
-			displayMsg(size+"");
-			for(int i = 0; i < size; i++) {
-				rollingDiceButtons[i].setLabel(this.player.getMainDice().getDice().get(i).toString());
-				rollingDiceButtons[i].setEnabled(true);
-			}
-//			this.refresh();
+			this.refreshDiceContainers();
 		} 
 
 		for(Button b: rollingDiceButtons) {
 			if(e.target == b) {
-//				this.player.getMainDice().getb.getLabel()
+				this.player.getSavedDice().addDie(this.player.getMainDice().removeDie(this.player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
+				this.refreshDiceContainers();
 			}
 		}
 		
 		return true;
 	}
 	
-	public boolean diceClick(Event e) {
-		for(Button b: rollingDiceButtons) {
-			if(e.target == b) {
-				return true;
-			}
+	public void refreshDiceContainers() {
+		Dimension diceDim = new Dimension(40, 40);
+		
+		for(Component c: rolling.getComponents()) {
+			((Button) c).setLabel("");
+			c.setEnabled(false);
 		}
-		return false;
+		
+		for(Component c: saved.getComponents()) {
+			((Button) c).setLabel("");
+			c.setEnabled(false);
+		}
+
+		for(int i = 0; i < player.getMainDice().size(); i++) {
+			rollingDiceButtons.get(i).setLabel((this.player.getMainDice().getDice().get(i).toString()));
+			rollingDiceButtons.get(i).setEnabled(true);
+		}
+
+		for(int i = 0; i < player.getSavedDice().size(); i++) {
+			savedDiceButtons.get(i).setLabel((this.player.getSavedDice().getDice().get(i).toString()));
+			savedDiceButtons.get(i).setEnabled(true);
+		}
 	}
 	
 	public void send() {
