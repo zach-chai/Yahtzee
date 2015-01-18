@@ -1,6 +1,5 @@
 package com.yahtzee.views;
 
-import java.applet.Applet;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,12 +9,13 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.yahtzee.model.Die;
+import javax.swing.JApplet;
+
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
 
-public class GUIClient extends Applet {
+public class GUIClient extends JApplet {
 	private static final long serialVersionUID = -3311568690970149278L;
 	
 	private Player player;
@@ -145,20 +145,20 @@ public class GUIClient extends Applet {
 			input.requestFocus();
 		} else if (e.target == rollDice) {
 			this.player.rollDice();
-			this.refreshDiceContainers();
+			this.refreshDice();
 		} 
 
 		for(Button b: rollingDiceButtons) {
 			if(e.target == b) {
 				this.player.getSavedDice().addDie(this.player.getMainDice().removeDie(this.player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
-				this.refreshDiceContainers();
+				this.refreshDice();
 			}
 		}
 		
 		return true;
 	}
 	
-	public void refreshDiceContainers() {
+	public void refreshDice() {
 		Dimension diceDim = new Dimension(40, 40);
 		
 		for(Component c: rolling.getComponents()) {
