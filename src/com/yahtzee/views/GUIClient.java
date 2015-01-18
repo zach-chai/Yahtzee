@@ -55,8 +55,8 @@ public class GUIClient extends JApplet {
 	private ArrayList<JButton> rollingDiceButtons;
 	private ArrayList<JButton> savedDiceButtons;
 	private JLabel label;
-	private JLabel mainDice;
-	private JLabel heldDice;
+	private JLabel mainDiceLabel;
+	private JLabel heldDiceLabel;
 	
 	public void init() {
 		
@@ -129,8 +129,10 @@ public class GUIClient extends JApplet {
 		label.setFont(new Font("Helvetica", Font.BOLD, 14));
 		label.setSize(350, 20);
 		
-		mainDice = new JLabel("Dice");
-		heldDice = new JLabel("Held Dice");
+		mainDiceLabel = new JLabel("Main Dice");
+		heldDiceLabel = new JLabel("Held Dice");
+		mainDiceLabel.setSize(200, 20);
+		heldDiceLabel.setSize(200, 20);
 		
 		JPanel title = new JPanel();
 		title.setSize(350, 20);
@@ -139,12 +141,12 @@ public class GUIClient extends JApplet {
 		
 		this.rolling = new JPanel();
 		this.rolling.setLayout(new FlowLayout(FlowLayout.CENTER));
-		rolling.add(mainDice);
+		rolling.add(mainDiceLabel);
 		for(int i = 0; i < Config.MAX_DICE; i++) {
 			JButton b = new JButton("");
 			b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					player.getSavedDice().addDie(player.getMainDice().removeDie(player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
+					player.getSavedDice().addDie(player.getMainDice().removeDie(player.getMainDice().getDice().get(rollingDiceButtons.indexOf(e.getSource()))));
 					refreshDice();
 				}
 			});
@@ -156,12 +158,12 @@ public class GUIClient extends JApplet {
 
 		saved = new JPanel();
 		saved.setLayout(new FlowLayout(FlowLayout.CENTER));
-		saved.add(heldDice);
+		saved.add(heldDiceLabel);
 		for(int i = 0; i < Config.MAX_DICE; i++) {
 			JButton b = new JButton("");
 			b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					player.getMainDice().addDie(player.getSavedDice().removeDie(player.getSavedDice().getDice().get(rollingDiceButtons.indexOf(b))));
+					player.getMainDice().addDie(player.getSavedDice().removeDie(player.getSavedDice().getDice().get(savedDiceButtons.indexOf(e.getSource()))));
 					refreshDice();
 				}
 			});
