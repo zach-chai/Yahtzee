@@ -1,6 +1,12 @@
 package com.yahtzee.views;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Event;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,12 +16,21 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class GUIClient extends JApplet {
+	public GUIClient() {
+	}
 	private static final long serialVersionUID = -3311568690970149278L;
 	
 	private Player player;
@@ -26,20 +41,22 @@ public class GUIClient extends JApplet {
 	private String serverPort;
 	private String serverName;
 	
-	private Panel south;
-	private Panel rolling;
-	private Panel saved;
-	private Panel buttons;
+	private JPanel south;
+	private JPanel rolling;
+	private JPanel saved;
+	private JPanel buttons;
 	
-	private TextField input;
-	private TextArea display;
-	private Button exit;
-	private Button connect;
-	private Button rollDice;
-	private Button send;
-	private ArrayList<Button> rollingDiceButtons;
-	private ArrayList<Button> savedDiceButtons;
-	private Label label;
+	private JTextField input;
+	private JTextArea display;
+	private JButton exit;
+	private JButton connect;
+	private JButton rollDice;
+	private JButton send;
+	private ArrayList<JButton> rollingDiceButtons;
+	private ArrayList<JButton> savedDiceButtons;
+	private JLabel label;
+	private JLabel mainDice;
+	private JLabel heldDice;
 	
 	public void init() {
 		
@@ -48,72 +65,129 @@ public class GUIClient extends JApplet {
 		
 		player = new Player();
 		
-		rollingDiceButtons = new ArrayList<Button>();		
-		savedDiceButtons = new ArrayList<Button>();
+		rollingDiceButtons = new ArrayList<JButton>();		
+		savedDiceButtons = new ArrayList<JButton>();
 		
-		input = new TextField();
-		display = new TextArea();
+		input = new JTextField();
+		display = new JTextArea();
 		
-		exit = new Button("Exit");
-		send = new Button("Send");
-		connect = new Button("Connect");
-		rollDice = new Button("Roll Dice");
+		exit = new JButton("Exit");
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				input.setText("quit");
+				display.setText("");
+				display.append("Game Over" + "\n");
+				
+				exit.setEnabled(false);
+				send.setEnabled(false);
+				connect.setEnabled(false);
+				rollDice.setEnabled(false);
+				display.setEnabled(false);
+				input.setEnabled(false);
+				
+				send();
+				
+				player = null;
+			}
+		});
+		send = new JButton("Send");
+		send.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		connect = new JButton("Connect");
+		connect.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				connect();
+			}
+		});
+		rollDice = new JButton("Roll Dice");
+		rollDice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.rollDice();
+				refreshDice();
+			}
+		});
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension btDim = new Dimension(85, 25);
+		Dimension diceDim = new Dimension(50, 50);
 		
 		exit.setPreferredSize(btDim);
 		send.setPreferredSize(btDim);
 		connect.setPreferredSize(btDim);
 		rollDice.setPreferredSize(btDim);
 		
-		buttons = new Panel();
+		buttons = new JPanel();
 		buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 		buttons.add(connect);
 		buttons.add(exit);
 		buttons.add(send);
 		buttons.add(rollDice);
 		
-		label = new Label("Yahtzee", Label.CENTER);
+		label = new JLabel("Yahtzee", JLabel.CENTER);
 		label.setFont(new Font("Helvetica", Font.BOLD, 14));
 		label.setSize(350, 20);
 		
-		Panel title = new Panel();
+		mainDice = new JLabel("Dice");
+		heldDice = new JLabel("Held Dice");
+		
+		JPanel title = new JPanel();
 		title.setSize(350, 20);
 		title.setLayout(new FlowLayout(FlowLayout.CENTER));
 		title.add(label);
 		
-		this.rolling = new Panel();
+		this.rolling = new JPanel();
 		this.rolling.setLayout(new FlowLayout(FlowLayout.CENTER));
+		rolling.add(mainDice);
 		for(int i = 0; i < Config.MAX_DICE; i++) {
-			Button b = new Button("");
-			b.setPreferredSize(new Dimension(40, 40));
+			JButton b = new JButton("");
+			b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					player.getSavedDice().addDie(player.getMainDice().removeDie(player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
+					refreshDice();
+				}
+			});
+			b.setPreferredSize(diceDim);
 			b.setEnabled(false);
 			this.rollingDiceButtons.add(b);
 			this.rolling.add(b);
 		}
 
-		saved = new Panel();
+		saved = new JPanel();
 		saved.setLayout(new FlowLayout(FlowLayout.CENTER));
+		saved.add(heldDice);
 		for(int i = 0; i < Config.MAX_DICE; i++) {
-			Button b = new Button("");
-			b.setPreferredSize(new Dimension(40, 40));
+			JButton b = new JButton("");
+			b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					player.getMainDice().addDie(player.getSavedDice().removeDie(player.getSavedDice().getDice().get(rollingDiceButtons.indexOf(b))));
+					refreshDice();
+				}
+			});
+			b.setPreferredSize(diceDim);
 			b.setEnabled(false);
 			this.savedDiceButtons.add(b);
 			this.saved.add(b);
 		}
 		
-		south = new Panel();
+		south = new JPanel();
 		south.setLayout(new GridLayout(4, 1));
 		south.add(input);
 		south.add(rolling);
+		
+		
+		
 		south.add(saved);
+		
+		
+		
 		south.add(buttons);
 		
-		setLayout(new BorderLayout());
-		add("North", title);
-		add("Center", display);
-		add("South", south);
+		getContentPane().setLayout(new BorderLayout());
+		getContentPane().add("North", title);
+		getContentPane().add("Center", display);
+		getContentPane().add("South", south);
 		this.setSize((int) screenSize.getWidth() / 5, (int) screenSize.getHeight() / 3);
 		
 		exit.setEnabled(false);
@@ -148,7 +222,7 @@ public class GUIClient extends JApplet {
 			this.refreshDice();
 		} 
 
-		for(Button b: rollingDiceButtons) {
+		for(JButton b: rollingDiceButtons) {
 			if(e.target == b) {
 				this.player.getSavedDice().addDie(this.player.getMainDice().removeDie(this.player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
 				this.refreshDice();
@@ -158,26 +232,24 @@ public class GUIClient extends JApplet {
 		return true;
 	}
 	
-	public void refreshDice() {
-		Dimension diceDim = new Dimension(40, 40);
-		
-		for(Component c: rolling.getComponents()) {
-			((Button) c).setLabel("");
-			c.setEnabled(false);
+	public void refreshDice() {		
+		for(int i = 1; i < rolling.getComponentCount(); i++) {
+			((JButton) rolling.getComponent(i)).setText("");
+			rolling.getComponent(i).setEnabled(false);
 		}
 		
-		for(Component c: saved.getComponents()) {
-			((Button) c).setLabel("");
-			c.setEnabled(false);
+		for(int i = 1; i < saved.getComponentCount(); i++) {
+			((JButton) saved.getComponent(i)).setText("");
+			saved.getComponent(i).setEnabled(false);
 		}
 
 		for(int i = 0; i < player.getMainDice().size(); i++) {
-			rollingDiceButtons.get(i).setLabel((this.player.getMainDice().getDice().get(i).toString()));
+			rollingDiceButtons.get(i).setText((this.player.getMainDice().getDice().get(i).toString()));
 			rollingDiceButtons.get(i).setEnabled(true);
 		}
 
 		for(int i = 0; i < player.getSavedDice().size(); i++) {
-			savedDiceButtons.get(i).setLabel((this.player.getSavedDice().getDice().get(i).toString()));
+			savedDiceButtons.get(i).setText((this.player.getSavedDice().getDice().get(i).toString()));
 			savedDiceButtons.get(i).setEnabled(true);
 		}
 	}
