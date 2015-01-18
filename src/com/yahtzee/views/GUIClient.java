@@ -1,6 +1,7 @@
 package com.yahtzee.views;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.FlowLayout;
@@ -25,6 +26,7 @@ import javax.swing.JTextField;
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -41,10 +43,12 @@ public class GUIClient extends JApplet {
 	private String serverPort;
 	private String serverName;
 	
+	private JPanel scores;
 	private JPanel south;
 	private JPanel rolling;
 	private JPanel saved;
 	private JPanel buttons;
+	private JPanel game;
 	
 	private JTextField input;
 	private JTextArea display;
@@ -129,6 +133,168 @@ public class GUIClient extends JApplet {
 		label.setFont(new Font("Helvetica", Font.BOLD, 14));
 		label.setSize(350, 20);
 		
+		JLabel scoreLabel[] = new JLabel[] {
+				new JLabel("Upper", JLabel.CENTER),
+				new JLabel("Game 1", JLabel.CENTER),
+				new JLabel("Game 2", JLabel.CENTER),
+				new JLabel("Game 3", JLabel.CENTER),
+				new JLabel("Game 4", JLabel.CENTER),
+				new JLabel("Game 5", JLabel.CENTER),
+				new JLabel("Game 6", JLabel.CENTER),
+				
+				new JLabel("Aces", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Twos", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Threes", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Fours", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Fives", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Sixes", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Total", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Bonus", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Total + Bonus", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("3 of a kind", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("4 of a kind", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Full house", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Sm. Straight", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Lg. Straight", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Yahtzee", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Chance", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Yahtzee Bonus", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				new JLabel(" | | ", JLabel.CENTER),
+				
+				new JLabel("Total", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				
+				new JLabel("Grand Total", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+				new JLabel("", JLabel.CENTER),
+		};
+		
 		mainDiceLabel = new JLabel("Main Dice");
 		heldDiceLabel = new JLabel("Held Dice");
 		mainDiceLabel.setSize(200, 20);
@@ -177,20 +343,27 @@ public class GUIClient extends JApplet {
 		south.setLayout(new GridLayout(4, 1));
 		south.add(input);
 		south.add(rolling);
-		
-		
-		
 		south.add(saved);
-		
-		
-		
 		south.add(buttons);
 		
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add("North", title);
-		getContentPane().add("Center", display);
-		getContentPane().add("South", south);
-		this.setSize((int) screenSize.getWidth() / 5, (int) screenSize.getHeight() / 3);
+		scores = new JPanel();
+		scores.setLayout(new GridLayout(21, 7));
+		for(JLabel l: scoreLabel) {
+			scores.add(l);
+		}
+		
+		game = new JPanel();
+		game.setLayout(new BorderLayout());
+		game.add(title, BorderLayout.NORTH);
+		game.add(display, BorderLayout.CENTER);
+		game.add(south, BorderLayout.SOUTH);
+		
+		Container container = getContentPane();
+		container.setLayout(new GridLayout(1, 2));
+		container.add(game);
+		container.add(scores);
+		
+		this.setSize(1200, 500);
 		
 		exit.setEnabled(false);
 		send.setEnabled(false);
