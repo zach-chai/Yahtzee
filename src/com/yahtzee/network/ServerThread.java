@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
@@ -12,8 +14,8 @@ public class ServerThread extends Thread {
 	private int ID = -1;
 	private Socket socket = null;
 	private AppServer server = null;
-	private BufferedReader streamIn = null;
-	private BufferedWriter streamOut = null;
+	private ObjectInputStream streamIn = null;
+	private ObjectOutputStream streamOut = null;
 	private boolean done = false;
 
 	public ServerThread(AppServer server, Socket socket) {
@@ -29,7 +31,7 @@ public class ServerThread extends Thread {
 	
 	public void send(String msg) {
 		try {
-			streamOut.write(msg);
+			streamOut.writeObject(msg);
 			streamOut.flush();
 		} catch(IOException e) {
 			System.out.println(ID + " Error sending message");
@@ -42,7 +44,11 @@ public class ServerThread extends Thread {
 		System.out.println("Server Thread " + ID + " running.");
 		while(!done) {
 			try {
-				server.handle(ID, streamIn.readLine());
+				server.handle(ID, streamIn.readObject());
+			} catch(ClassNotFoundException e) {
+				System.out.println(ID + ":Error class not found");
+				server.remove(ID);			
+				break;
 			} catch(IOException e) {
 				System.out.println(ID + ":Error reading input");
 				server.remove(ID);
@@ -52,9 +58,11 @@ public class ServerThread extends Thread {
 	}
 	
 	public void open() throws IOException {
-		System.out.println(ID + ": Opening buffer streams");
-		streamIn  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		streamOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		System.out.println(ID + ": Opening Object streams");
+		streamOut = new ObjectOutputStream(socket.getOutputStream());
+		streamOut.flush();
+		streamIn  = new ObjectInputStream(socket.getInputStream());
+		System.out.println(ID + ": Opened Object Streams");
 	}
 	
 	public void close() throws IOException {

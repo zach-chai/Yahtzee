@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -38,8 +40,8 @@ public class GUIClient extends JApplet {
 	private Player player;
 	private ClientThread clientThread = null;
 	private Socket socket = null;
-	private BufferedReader streamIn = null;
-	private BufferedWriter streamOut = null;
+	private ObjectInputStream streamIn = null;
+	private ObjectOutputStream streamOut = null;
 	private String serverPort;
 	private String serverName;
 	
@@ -112,8 +114,7 @@ public class GUIClient extends JApplet {
 				refreshDice();
 			}
 		});
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		
 		Dimension btDim = new Dimension(85, 25);
 		Dimension diceDim = new Dimension(50, 50);
 		
@@ -431,8 +432,7 @@ public class GUIClient extends JApplet {
 	
 	public void send() {
 		try {
-			streamOut.write(input.getText());
-			streamOut.newLine();
+			streamOut.writeObject(input.getText());
 			streamOut.flush();
 			input.setText("");
 		} catch (IOException e) {
@@ -486,8 +486,8 @@ public class GUIClient extends JApplet {
 	
 	public void openStreams() {
 		try {
-			streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			streamOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			streamIn  = new ObjectInputStream(socket.getInputStream());
+			streamOut = new ObjectOutputStream(socket.getOutputStream());
 		} catch(IOException e) {
 			displayMsg("Error opening streams");
 		}

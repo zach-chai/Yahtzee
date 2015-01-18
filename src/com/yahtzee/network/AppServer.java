@@ -35,7 +35,7 @@ public class AppServer implements Runnable {
 		}
 	}
 	
-	public synchronized void handle(int ID, String input) {
+	public synchronized void handle(int ID, Object input) {
 		if(input == null)
 			return;
 		
