@@ -3,7 +3,9 @@ package com.yahtzee.network;
 import java.io.IOException;
 import java.net.*;
 
+import com.yahtzee.model.Combination;
 import com.yahtzee.model.Dice;
+import com.yahtzee.model.GameScore;
 import com.yahtzee.model.MainDice;
 import com.yahtzee.model.Player;
 import com.yahtzee.utils.Config;
@@ -14,8 +16,10 @@ public class AppServer implements Runnable {
 	private Thread thread = null;
 	private ServerSocket server = null;
 	private ServerThread clients[] = new ServerThread[Config.MAX_CLIENTS];
+	private GameScore gameScore;
 	
 	public AppServer(int port) {
+		gameScore = new GameScore();
 		try {
 			System.out.println("Binding to port " + port + ", please wait ...");
 			server = new ServerSocket(port);
@@ -59,7 +63,10 @@ public class AppServer implements Runnable {
 			}
 		} else if(input instanceof Player) {
 			System.out.println("YAY Player");
-			
+			if(Combination.verify(((Player) input).getMainDice())) {
+				gameScore.calculateScore(((Player) input).getMainDice());
+			}
+//			TODO: return scores and invalid if score taken
 		} else {
 			System.out.println("Unknown object");
 		}
