@@ -1,18 +1,21 @@
 package com.yahtzee.model;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Die {
-	
+public class Die implements Serializable {
+
+	private static final long serialVersionUID = 7485273716365407176L;
+
 	private int value;
 	
 	//constants
-//	private static final int ONE = 1;
-//	private static final int TWO = 2;
-//	private static final int THREE = 3;
-//	private static final int FOUR = 4;
-//	private static final int FIVE = 5;
-	private static final int SIX = 6;
+	public static final int ACE = 1;
+	public static final int TWO = 2;
+	public static final int THREE = 3;
+	public static final int FOUR = 4;
+	public static final int FIVE = 5;
+	public static final int SIX = 6;
 	
 	public Die() {
 		value = SIX;

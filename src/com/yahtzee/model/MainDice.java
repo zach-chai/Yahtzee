@@ -4,6 +4,8 @@ import com.yahtzee.utils.Config;
 
 public class MainDice extends Dice {
 	
+	private int combination;
+	
 	public MainDice() {
 		reloadDice();
 	}
@@ -19,6 +21,14 @@ public class MainDice extends Dice {
 		for(Die d: dice) {
 			d.roll();
 		}
+	}
+
+	public int getCombination() {
+		return combination;
+	}
+
+	public void setCombination(int combination) {
+		this.combination = combination;
 	}
 
 }

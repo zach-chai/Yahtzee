@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.yahtzee.model.Combination;
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
@@ -45,21 +46,28 @@ public class GUIClient extends JApplet {
 	private String serverPort;
 	private String serverName;
 	
-	private JPanel scores;
+	private JPanel scoreBoard;
 	private JPanel south;
 	private JPanel rolling;
 	private JPanel saved;
 	private JPanel buttons;
 	private JPanel game;
+	private JPanel upperScore;
+	private JPanel lowerScore;
 	
 	private JTextField input;
 	private JTextArea display;
+	
 	private JButton exit;
 	private JButton connect;
 	private JButton rollDice;
 	private JButton send;
+	private JButton upperButtons[];
+	private JButton lowerButtons[];
+	
 	private ArrayList<JButton> rollingDiceButtons;
 	private ArrayList<JButton> savedDiceButtons;
+	
 	private JLabel label;
 	private JLabel mainDiceLabel;
 	private JLabel heldDiceLabel;
@@ -99,6 +107,7 @@ public class GUIClient extends JApplet {
 		send = new JButton("Send");
 		send.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				send();
 			}
 		});
 		connect = new JButton("Connect");
@@ -112,6 +121,105 @@ public class GUIClient extends JApplet {
 			public void actionPerformed(ActionEvent e) {
 				player.rollDice();
 				refreshDice();
+				for(JButton b: upperButtons) {
+					b.setEnabled(true);
+				}
+				for(JButton b: lowerButtons) {
+					b.setEnabled(true);
+				}
+			}
+		});
+		
+		upperButtons = new JButton[] {
+				new JButton("Aces"),
+				new JButton("Twos"),
+				new JButton("Threes"),
+				new JButton("Fours"),
+				new JButton("Fives"),
+				new JButton("Sixes"),
+				new JButton("Chance")
+			};
+		
+		upperButtons[0].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.ACES);
+				send(player);
+			}
+		});
+		upperButtons[1].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.TWOS);
+				send(player);
+			}
+		});
+		upperButtons[2].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.THREES);
+				send(player);
+			}
+		});
+		upperButtons[3].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.FOURS);
+				send(player);
+			}
+		});
+		upperButtons[4].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.FIVES);
+				send(player);
+			}
+		});
+		upperButtons[5].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.SIXES);
+				send(player);
+			}
+		});
+		upperButtons[6].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.CHANCE);
+				send(player);
+			}
+		});
+		
+		lowerButtons = new JButton[]{
+				new JButton("3 of Kind"),
+				new JButton("4 of Kind"),
+				new JButton("Full House"),
+				new JButton("Sm. Straight"),
+				new JButton("Lg. Straight"),
+				new JButton("Yahtzee")
+		};
+		
+		lowerButtons[0].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.THREE_OF_KIND);
+			}
+		});
+		lowerButtons[1].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.FOUR_OF_KIND);
+			}
+		});
+		lowerButtons[2].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.FULL_HOUSE);
+			}
+		});
+		lowerButtons[3].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.SMALL_STRAIGHT);
+			}
+		});
+		lowerButtons[4].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.LARGE_STRAIGHT);
+			}
+		});
+		lowerButtons[5].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				player.getMainDice().setCombination(Combination.YAHTZEE);
 			}
 		});
 		
@@ -340,17 +448,31 @@ public class GUIClient extends JApplet {
 			this.saved.add(b);
 		}
 		
+		upperScore = new JPanel();
+		upperScore.setLayout(new FlowLayout(FlowLayout.CENTER));
+		for(JButton b: upperButtons) {
+			upperScore.add(b);
+		}
+		
+		lowerScore = new JPanel();
+		lowerScore.setLayout(new FlowLayout(FlowLayout.CENTER));
+		for(JButton b: lowerButtons) {
+			lowerScore.add(b);
+		}
+		
 		south = new JPanel();
-		south.setLayout(new GridLayout(4, 1));
+		south.setLayout(new GridLayout(6, 1));
 		south.add(input);
 		south.add(rolling);
 		south.add(saved);
 		south.add(buttons);
+		south.add(upperScore);
+		south.add(lowerScore);
 		
-		scores = new JPanel();
-		scores.setLayout(new GridLayout(21, 7));
+		scoreBoard = new JPanel();
+		scoreBoard.setLayout(new GridLayout(21, 7));
 		for(JLabel l: scoreLabel) {
-			scores.add(l);
+			scoreBoard.add(l);
 		}
 		
 		game = new JPanel();
@@ -362,7 +484,7 @@ public class GUIClient extends JApplet {
 		Container container = getContentPane();
 		container.setLayout(new GridLayout(1, 2));
 		container.add(game);
-		container.add(scores);
+		container.add(scoreBoard);
 		
 		this.setSize(1200, 500);
 		
@@ -370,6 +492,12 @@ public class GUIClient extends JApplet {
 		send.setEnabled(false);
 		connect.setEnabled(true);
 		rollDice.setEnabled(false);
+		for(JButton b: upperButtons) {
+			b.setEnabled(false);
+		}
+		for(JButton b: lowerButtons) {
+			b.setEnabled(false);
+		}
 	}
 	
 	public boolean action(Event e, Object o) {
@@ -437,6 +565,16 @@ public class GUIClient extends JApplet {
 			input.setText("");
 		} catch (IOException e) {
 			displayMsg("Error sending message");
+			disconnect();
+		}
+	}
+	
+	public void send(Object input) {
+		try {
+			streamOut.writeObject(input);
+			streamOut.flush();
+		} catch (IOException e) {
+			displayMsg("Error sending object");
 			disconnect();
 		}
 	}

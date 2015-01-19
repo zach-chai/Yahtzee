@@ -3,6 +3,9 @@ package com.yahtzee.network;
 import java.io.IOException;
 import java.net.*;
 
+import com.yahtzee.model.Dice;
+import com.yahtzee.model.MainDice;
+import com.yahtzee.model.Player;
 import com.yahtzee.utils.Config;
 
 public class AppServer implements Runnable {
@@ -39,20 +42,28 @@ public class AppServer implements Runnable {
 		if(input == null)
 			return;
 		
-		if(input.equals("quit")) {
-			System.out.println("Removing Client: " + ID);
-			int pos = findClient(ID);
-			if(pos != -1) {
-				clients[pos].send("quit" + "\n");
-				remove(ID);
+		if(input instanceof String) {
+			if(input.equals("quit")) {
+				System.out.println("Removing Client: " + ID);
+				int pos = findClient(ID);
+				if(pos != -1) {
+					clients[pos].send("quit" + "\n");
+					remove(ID);
+				}
+			} else {
+				for(int i = 0; i < clientCount; i++) {
+					System.out.printf("Server: %6d Sending From: %6d Sending To: %6d\n",
+						this.server.getLocalPort(), ID, clients[i].getID());
+					clients[i].send(ID + ": " + input + "\n");
+				}
 			}
+		} else if(input instanceof Player) {
+			System.out.println("YAY Player");
+			
 		} else {
-			for(int i = 0; i < clientCount; i++) {
-				System.out.printf("Server: %6d Sending From: %6d Sending To: %6d\n",
-					this.server.getLocalPort(), ID, clients[i].getID());
-				clients[i].send(ID + ": " + input + "\n");
-			}
+			System.out.println("Unknown object");
 		}
+		
 	}
 	
 	public synchronized void remove(int ID) {

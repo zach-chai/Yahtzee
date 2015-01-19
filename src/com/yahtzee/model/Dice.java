@@ -1,9 +1,12 @@
 package com.yahtzee.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Dice {
+public abstract class Dice implements Serializable {
 
+	private static final long serialVersionUID = -2793273821696208509L;
+	
 	protected ArrayList<Die> dice = new ArrayList<Die>();
 
 	public Die removeDie(Die die) {

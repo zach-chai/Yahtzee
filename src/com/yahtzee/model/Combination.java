@@ -3,7 +3,21 @@ package com.yahtzee.model;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class Combinations {
+public final class Combination {
+	
+	public static final int YAHTZEE = 0;
+	public static final int ACES = 1;
+	public static final int TWOS = 2;
+	public static final int THREES = 3;
+	public static final int FOURS = 4;
+	public static final int FIVES = 5;
+	public static final int SIXES = 6;
+	public static final int THREE_OF_KIND = 7;
+	public static final int FOUR_OF_KIND = 8;
+	public static final int FULL_HOUSE = 9;
+	public static final int SMALL_STRAIGHT = 10;
+	public static final int LARGE_STRAIGHT = 11;
+	public static final int CHANCE = 12;
 	
 	public static boolean verifyYahtzee(MainDice dice) {
 		Set<Die> set = new HashSet<Die>(dice.getDice());
