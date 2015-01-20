@@ -29,10 +29,11 @@ public class ServerThread extends Thread {
 		return this.ID;
 	}
 	
-	public void send(String msg) {
+	public void send(Object o) {
 		try {
-			streamOut.writeObject(msg);
+			streamOut.writeObject(o);
 			streamOut.flush();
+			streamOut.reset();
 		} catch(IOException e) {
 			System.out.println(ID + " Error sending message");
 //			Trace.exception(e);

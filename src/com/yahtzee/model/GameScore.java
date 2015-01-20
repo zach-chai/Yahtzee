@@ -1,10 +1,14 @@
 package com.yahtzee.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-public class GameScore {
+public class GameScore implements Serializable {
+	
+	private static final long serialVersionUID = -4567622799857113043L;
 	
 	private int aces;
 	private int twos;
@@ -23,100 +27,186 @@ public class GameScore {
 	private ArrayList<Integer> yahtzeeBonus;
 	
 	public GameScore() {
+		aces = 0;
+		twos = 0;
+		threes = 0;
+		fours = 0;
+		fives = 0;
+		sixes = 0;
+		bonus = 0;
+		threeKind = 0;
+		fourKind = 0;
+		fullHouse = 0;
+		smallStraight = 0;
+		largeStraight = 0;
+		yahtzee = 0;
+		chance = 0;
 		yahtzeeBonus = new ArrayList<Integer>();
 	}
 	
-	public boolean calculateScore(MainDice dice) {
+	public int calculateScore(MainDice dice) {
 		switch(dice.getCombination()) {
-		case Combination.ACES: calculateAces(dice);
-		case Combination.TWOS: calculateTwos(dice);
-		case Combination.THREES: calculateThrees(dice);
-		case Combination.FOURS: calculateFours(dice);
-		case Combination.FIVES: calculateFives(dice);
-		case Combination.SIXES: calculateSixes(dice);
-		case Combination.THREE_OF_KIND: calculateThreeKind(dice);
-		case Combination.FOUR_OF_KIND: calculateFourKind(dice);
-		case Combination.FULL_HOUSE: calculateFullHouse(dice);
-		case Combination.SMALL_STRAIGHT: calculateSmallStraight(dice);
-		case Combination.LARGE_STRAIGHT: calculateLargeStraight(dice);
-		case Combination.CHANCE: calculateChance(dice);
-		case Combination.YAHTZEE: calculateYahtzee(dice);
+		case Combination.ACES:
+			if(aces != 0)
+				return -1;
+			return calculateAces(dice);
+		case Combination.TWOS:
+			if(twos != 0)
+				return -1;
+			return calculateTwos(dice);
+		case Combination.THREES:
+			if(threes != 0)
+				return -1;
+			return calculateThrees(dice);
+		case Combination.FOURS:
+			if(fours != 0)
+				return -1;
+			return calculateFours(dice);
+		case Combination.FIVES:
+			if(fives != 0)
+				return -1;
+			return calculateFives(dice);
+		case Combination.SIXES:
+			if(sixes != 0)
+				return -1;
+			return calculateSixes(dice);
+		case Combination.THREE_OF_KIND:
+			if(threeKind != 0)
+				return -1;
+			return calculateThreeKind(dice);
+		case Combination.FOUR_OF_KIND:
+			if(fourKind != 0)
+				return -1;
+			return calculateFourKind(dice);
+		case Combination.FULL_HOUSE:
+			if(fullHouse != 0)
+				return -1;
+			return calculateFullHouse(dice);
+		case Combination.SMALL_STRAIGHT:
+			if(smallStraight != 0)
+				return -1;
+			return calculateSmallStraight(dice);
+		case Combination.LARGE_STRAIGHT:
+			if(largeStraight != 0)
+				return -1;
+			return calculateLargeStraight(dice);
+		case Combination.CHANCE:
+			if(chance != 0)
+				return -1;
+			return calculateChance(dice);
+		case Combination.YAHTZEE:
+			if(yahtzee != 0)
+				return calculateYahtzeeBonus(dice);
+			return calculateYahtzee(dice);
 		}
-		return false;
+		return -1;
 	}
 	
-	public void calculateChance(MainDice dice) {
+	public int calculateChance(MainDice dice) {
 		chance = 0;
 		for(Die d: dice.getDice())
 			chance += d.getValue();
+		return chance;
 	}
 
-	public void calculateAces(MainDice dice) {
+	public int calculateAces(MainDice dice) {
 		aces = dice.numDie(Die.ACE);
 		calculateBonus(dice);
+		return aces;
 	}
 	
-	public void calculateTwos(MainDice dice) {
+	public int calculateTwos(MainDice dice) {
 		twos = dice.numDie(Die.TWO) * Die.TWO;
 		calculateBonus(dice);
+		return twos;
 	}
 	
-	public void calculateThrees(MainDice dice) {
+	public int calculateThrees(MainDice dice) {
 		threes = dice.numDie(Die.THREE) * Die.THREE;
 		calculateBonus(dice);
+		return threes;
 	}
 	
-	public void calculateFours(MainDice dice) {
+	public int calculateFours(MainDice dice) {
 		fours = dice.numDie(Die.FOUR) * Die.FOUR;
 		calculateBonus(dice);
+		return fours;
 	}
 	
-	public void calculateFives(MainDice dice) {
+	public int calculateFives(MainDice dice) {
 		fives = dice.numDie(Die.FIVE) * Die.FIVE;
 		calculateBonus(dice);
+		return fives;
 	}
 	
-	public void calculateSixes(MainDice dice) {
+	public int calculateSixes(MainDice dice) {
 		sixes = dice.numDie(Die.SIX) * Die.SIX;
 		calculateBonus(dice);
+		return sixes;
 	}
 	
-	public void calculateBonus(MainDice dice) {
+	public int calculateBonus(MainDice dice) {
 		if((aces + twos + threes + fours + fives + sixes) >= 63) {
 			bonus = 35;
 		}
+		return bonus;
 	}
 	
-	public void calculateThreeKind(MainDice dice) {
+	public int calculateThreeKind(MainDice dice) {
 		threeKind = 0;
 		for(Die d: dice.getDice())
 			threeKind += d.getValue();
+		return threeKind;
 	}
 	
-	public void calculateFourKind(MainDice dice) {
+	public int calculateFourKind(MainDice dice) {
 		fourKind = 0;
 		for(Die d: dice.getDice())
 			fourKind += d.getValue();
+		return fourKind;
 	}
 	
-	public void calculateFullHouse(MainDice dice) {
-		fullHouse = 25;
+	public int calculateFullHouse(MainDice dice) {
+		return fullHouse = 25;
 	}
 	
-	public void calculateSmallStraight(MainDice dice) {
-		smallStraight = 30;
+	public int calculateSmallStraight(MainDice dice) {
+		return smallStraight = 30;
 	}
 	
-	public void calculateLargeStraight(MainDice dice) {
-		largeStraight = 40;
+	public int calculateLargeStraight(MainDice dice) {
+		return largeStraight = 40;
 	}
 	
-	public void calculateYahtzee(MainDice dice) {
-		yahtzee = 50;
+	public int calculateYahtzee(MainDice dice) {
+		return yahtzee = 50;
 	}
 	
-	public void calculateYahtzeeBonus(MainDice dice) {
+	public int calculateYahtzeeBonus(MainDice dice) {
 		yahtzeeBonus.add(100);
+		return 100;
+	}
+	
+	public int[] toArray() {
+		return new int[] {
+				aces, twos, threes, fours, fives, sixes, bonus,
+				threeKind, fourKind, fullHouse, smallStraight,
+				largeStraight, yahtzee, chance
+		};
+	}
+	
+	public String yahtzeeBonusToString() {
+		String s = "";
+		Iterator<Integer> it = yahtzeeBonus.iterator();
+		for(int i = 0; i < 3; i++) {
+			if(it.hasNext()) {
+				s += it.next();
+			} else {
+				s += " ";
+			}
+			s += "|";
+		}
+		return s;
 	}
 
 }

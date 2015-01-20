@@ -28,5 +28,13 @@ public class Player implements Serializable {
 		return savedDice;
 	}
 	
+	public void moveDice() {
+		System.out.println("msize: "+mainDice.size());
+		System.out.println("ssize: "+savedDice.size());
+		while(savedDice.size() > 0) {
+			mainDice.addDie(savedDice.removeDie(savedDice.getDice().get(0)));
+		}
+	}
+	
 
 }

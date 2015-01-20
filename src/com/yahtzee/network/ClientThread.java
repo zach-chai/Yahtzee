@@ -3,15 +3,17 @@ package com.yahtzee.network;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 
+import com.yahtzee.model.GameScore;
 import com.yahtzee.views.GUIClient;
 
 public class ClientThread extends Thread {
 	
 	private Socket socket = null;
 	private GUIClient client = null;
-	private BufferedReader streamIn = null;
+	private ObjectInputStream streamIn = null;
 	private boolean done = false;
 
 //	public ClientThread(AppClient client, Socket socket) {
@@ -29,8 +31,10 @@ public class ClientThread extends Thread {
 	}
 	
 	public void open() {
+		System.out.println("opening stream...");
 		try {
-			streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			streamIn  = new ObjectInputStream(socket.getInputStream());
+			System.out.println("stream opened");
 		} catch(IOException e) {
 			System.out.println("Error getting input stream");
 			client.disconnect();
@@ -51,9 +55,22 @@ public class ClientThread extends Thread {
 		System.out.println("Client Thread " + socket.getLocalPort() + " running");
 		while(!done) {
 			try {
-				client.handle(streamIn.readLine());
+				Object o = streamIn.readObject();
+				if(o instanceof GameScore) {
+					client.displayMsg("Updating game scores");
+					client.updateScoreBoard((GameScore) o);
+				} else {
+					String msg = (String) o;
+					if(msg == "quit") {
+						client.stop();
+					} else {
+						client.displayMsg(msg);
+					}						
+				}
 			} catch(IOException e) {
 				System.out.println("Listening error");
+			} catch (ClassNotFoundException e) {
+				System.out.println("class not found error");
 			}
 		}
 	}

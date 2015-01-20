@@ -1,7 +1,11 @@
 package com.yahtzee.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 public final class Combination {
 	
@@ -39,15 +43,17 @@ public final class Combination {
 	}
 	
 	public static boolean verifyYahtzee(MainDice dice) {
-		Set<Die> set = new HashSet<Die>(dice.getDice());
-		return set.size() == 1;
+		return dice.numDie(dice.getDice().get(0)) == 5;
 	}
 	
 	public static boolean verifyLargeStraight(MainDice dice) {
-		Set<Die> set = new HashSet<Die>(dice.getDice());
 		if(dice.contains(1) && dice.contains(6))
 			return false;
-		return dice.size() == set.size();
+		for(Die d: dice.getDice()) {
+			if(dice.numDie(d) != 1)
+				return false;				
+		}
+		return true;
 	}
 	
 	public static boolean verifySmallStraight(MainDice dice) {
@@ -63,27 +69,28 @@ public final class Combination {
 	}
 	
 	public static boolean verifyFullHouse(MainDice dice) {
-		Set<Die> set = new HashSet<Die>(dice.getDice());
-		if(set.size() != 2)
-			return false;
-		Die arr[] = set.toArray(new Die[set.size()]);
-		return (dice.numDie(arr[0]) == 2 || dice.numDie(arr[0]) == 3);
+		for(Die d: dice.getDice()) {
+			if(dice.numDie(d) == 2 || dice.numDie(d) == 3)
+				continue;
+			return false;				
+		}
+		return true;
 	}
 	
 	public static boolean verifyFourOfKind(MainDice dice) {
-		Set<Die> set = new HashSet<Die>(dice.getDice());
-		if(set.size() != 2)
-			return false;
-		Die arr[] = set.toArray(new Die[set.size()]);
-		return (dice.numDie(arr[0]) == 4 || dice.numDie(arr[1]) == 4);
+		for(Die d: dice.getDice()) {
+			if(dice.numDie(d) == 4)
+				return true;				
+		}
+		return false;
 	}
 	
 	public static boolean verifyThreeOfKind(MainDice dice) {
-		Set<Die> set = new HashSet<Die>(dice.getDice());
-		if(set.size() > 3)
-			return false;
-		Die arr[] = set.toArray(new Die[set.size()]);
-		return (dice.numDie(arr[0]) == 3 || dice.numDie(arr[1]) == 3 || dice.numDie(arr[2]) == 3);
+		for(Die d: dice.getDice()) {
+			if(dice.numDie(d) == 3)
+				return true;				
+		}
+		return false;
 	}
 	
 	public static boolean verifyAces(MainDice dice) {

@@ -17,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -26,6 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.yahtzee.model.Combination;
+import com.yahtzee.model.GameScore;
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
@@ -41,7 +43,6 @@ public class GUIClient extends JApplet {
 	private Player player;
 	private ClientThread clientThread = null;
 	private Socket socket = null;
-	private ObjectInputStream streamIn = null;
 	private ObjectOutputStream streamOut = null;
 	private String serverPort;
 	private String serverName;
@@ -69,6 +70,7 @@ public class GUIClient extends JApplet {
 	private ArrayList<JButton> savedDiceButtons;
 	
 	private JLabel label;
+	private JLabel scoreLabels[];
 	private JLabel mainDiceLabel;
 	private JLabel heldDiceLabel;
 	
@@ -195,31 +197,37 @@ public class GUIClient extends JApplet {
 		lowerButtons[0].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.THREE_OF_KIND);
+				send(player);
 			}
 		});
 		lowerButtons[1].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.FOUR_OF_KIND);
+				send(player);
 			}
 		});
 		lowerButtons[2].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.FULL_HOUSE);
+				send(player);
 			}
 		});
 		lowerButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.SMALL_STRAIGHT);
+				send(player);
 			}
 		});
 		lowerButtons[4].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.LARGE_STRAIGHT);
+				send(player);
 			}
 		});
 		lowerButtons[5].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				player.getMainDice().setCombination(Combination.YAHTZEE);
+				send(player);
 			}
 		});
 		
@@ -242,7 +250,7 @@ public class GUIClient extends JApplet {
 		label.setFont(new Font("Helvetica", Font.BOLD, 14));
 		label.setSize(350, 20);
 		
-		JLabel scoreLabel[] = new JLabel[] {
+		scoreLabels = new JLabel[] {
 				new JLabel("Upper", JLabel.CENTER),
 				new JLabel("Game 1", JLabel.CENTER),
 				new JLabel("Game 2", JLabel.CENTER),
@@ -471,7 +479,7 @@ public class GUIClient extends JApplet {
 		
 		scoreBoard = new JPanel();
 		scoreBoard.setLayout(new GridLayout(21, 7));
-		for(JLabel l: scoreLabel) {
+		for(JLabel l: scoreLabels) {
 			scoreBoard.add(l);
 		}
 		
@@ -536,6 +544,20 @@ public class GUIClient extends JApplet {
 		return true;
 	}
 	
+	public void updateScoreBoard(GameScore gameScores) {
+		int[] scores = gameScores.toArray();
+		int i = 8;
+		for(int j = 0; j < scores.length; j++) {
+			if(i == 50 || i == 64) {
+				i += 7;
+			}
+			if(scores[j] != 0)
+				scoreLabels[i].setText(scores[j]+"");
+			i += 7;
+		}
+		scoreLabels[i].setText(gameScores.yahtzeeBonusToString());
+	}
+	
 	public void refreshDice() {		
 		for(int i = 1; i < rolling.getComponentCount(); i++) {
 			((JButton) rolling.getComponent(i)).setText("");
@@ -570,21 +592,15 @@ public class GUIClient extends JApplet {
 	}
 	
 	public void send(Object input) {
+		displayMsg("sending object");
+		System.out.println(player.getMainDice().getCombination());
 		try {
 			streamOut.writeObject(input);
 			streamOut.flush();
+			streamOut.reset();
 		} catch (IOException e) {
 			displayMsg("Error sending object");
 			disconnect();
-		}
-	}
-	
-	public void handle(String msg) {
-		if(msg.equals("quit")) {
-			System.out.println("Good bye. Press RETURN to exit ...");
-			stop();
-		} else {
-			System.out.println(msg);
 		}
 	}
 	
@@ -606,15 +622,12 @@ public class GUIClient extends JApplet {
 	
 	public void disconnect() {
 		try {
-			if(streamIn != null)
-				streamIn.close();
 			if(streamOut != null)
 				streamOut.close();
 			if(socket != null)
 				socket.close();
 			
 			socket = null;
-			streamIn = null;
 			streamOut = null;
 		} catch(IOException e) {
 			displayMsg("Error disconnecting");
@@ -623,9 +636,11 @@ public class GUIClient extends JApplet {
 	}
 	
 	public void openStreams() {
+		System.out.println("opening stream...");
 		try {
-			streamIn  = new ObjectInputStream(socket.getInputStream());
 			streamOut = new ObjectOutputStream(socket.getOutputStream());
+			streamOut.flush();
+			System.out.println("stream opened");
 		} catch(IOException e) {
 			displayMsg("Error opening streams");
 		}

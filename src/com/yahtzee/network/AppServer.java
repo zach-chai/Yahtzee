@@ -63,10 +63,24 @@ public class AppServer implements Runnable {
 			}
 		} else if(input instanceof Player) {
 			System.out.println("YAY Player");
-			if(Combination.verify(((Player) input).getMainDice())) {
-				gameScore.calculateScore(((Player) input).getMainDice());
+			Player player = (Player) input;
+			player.moveDice();
+			System.out.println("Combi: "+player.getMainDice().getCombination());
+			System.out.println(player.getMainDice().getDice().toString());
+			if(Combination.verify(player.getMainDice())) {
+				System.out.println("verified");
+				if(gameScore.calculateScore(player.getMainDice()) >= 0) {
+					System.out.println("score added");
+					for(int i = 0; i < clientCount; i++) {
+						clients[i].send(gameScore);
+					}
+				} else {
+					clients[findClient(ID)].send("Invalid: score already taken");
+				}
+			} else {
+				clients[findClient(ID)].send("Invalid: score");
 			}
-//			TODO: return scores and invalid if score taken
+			player = null;
 		} else {
 			System.out.println("Unknown object");
 		}
@@ -84,6 +98,7 @@ public class AppServer implements Runnable {
 				}
 			}
 		}
+		clientCount--;
 	}
 	
 	public void start() {
