@@ -36,8 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class GUIClient extends JApplet {
-	public GUIClient() {
-	}
+
 	private static final long serialVersionUID = -3311568690970149278L;
 	
 	private Player player;
@@ -46,6 +45,8 @@ public class GUIClient extends JApplet {
 	private ObjectOutputStream streamOut = null;
 	private String serverPort;
 	private String serverName;
+	private int gameNum;
+	private int diceRolls;
 	
 	private JPanel scoreBoard;
 	private JPanel south;
@@ -63,6 +64,7 @@ public class GUIClient extends JApplet {
 	private JButton connect;
 	private JButton rollDice;
 	private JButton send;
+	private JButton newGame;
 	private JButton upperButtons[];
 	private JButton lowerButtons[];
 	
@@ -80,6 +82,9 @@ public class GUIClient extends JApplet {
 		serverPort = Config.DEFAULT_PORT+"";
 		
 		player = new Player();
+		
+		diceRolls = 0;
+		gameNum = 0;
 		
 		rollingDiceButtons = new ArrayList<JButton>();		
 		savedDiceButtons = new ArrayList<JButton>();
@@ -118,6 +123,12 @@ public class GUIClient extends JApplet {
 				connect();
 			}
 		});
+		newGame = new JButton("New Game");
+		newGame.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				newRound();
+			}
+		});
 		rollDice = new JButton("Roll Dice");
 		rollDice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -128,6 +139,9 @@ public class GUIClient extends JApplet {
 				}
 				for(JButton b: lowerButtons) {
 					b.setEnabled(true);
+				}
+				if(++diceRolls == 3) {
+					rollDice.setEnabled(false);
 				}
 			}
 		});
@@ -500,6 +514,7 @@ public class GUIClient extends JApplet {
 		send.setEnabled(false);
 		connect.setEnabled(true);
 		rollDice.setEnabled(false);
+		newGame.setEnabled(false);
 		for(JButton b: upperButtons) {
 			b.setEnabled(false);
 		}
@@ -544,7 +559,30 @@ public class GUIClient extends JApplet {
 		return true;
 	}
 	
+	public void endRound() {
+		
+		rollDice.setEnabled(false);
+		for(JButton b: upperButtons) {
+			b.setEnabled(false);
+		}
+		for(JButton b: lowerButtons) {
+			b.setEnabled(false);
+		}
+		
+		player.clearDice();
+		refreshDice();
+	}
+	
+	public void newRound() {
+		send("round started");
+		diceRolls = 0;
+		rollDice.setEnabled(true);
+		player.getMainDice().reloadDice();
+		
+	}
+	
 	public void updateScoreBoard(GameScore gameScores) {
+		displayMsg("Updating game scores");
 		int[] scores = gameScores.toArray();
 		int i = 8;
 		for(int j = 0; j < scores.length; j++) {
@@ -611,7 +649,6 @@ public class GUIClient extends JApplet {
 			clientThread = new ClientThread(this, socket);
 			this.send.setEnabled(true);
 			this.exit.setEnabled(true);
-			this.rollDice.setEnabled(true);
 			this.connect.setEnabled(false);
 //			this.label.setText(player.getName() + " on Port: " + socket.getLocalPort());
 			displayMsg("Connected");

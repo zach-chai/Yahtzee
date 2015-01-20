@@ -57,15 +57,18 @@ public class ClientThread extends Thread {
 			try {
 				Object o = streamIn.readObject();
 				if(o instanceof GameScore) {
-					client.displayMsg("Updating game scores");
-					client.updateScoreBoard((GameScore) o);
+					client.updateScoreBoard(((GameScore) o));
 				} else {
 					String msg = (String) o;
-					if(msg == "quit") {
+					if("quit".equals(msg)) {
 						client.stop();
+					} else if("start round".equals(msg)) {
+						client.newRound();
+					} else if("end round".equals(msg)) {
+						client.endRound();
 					} else {
 						client.displayMsg(msg);
-					}						
+					}					
 				}
 			} catch(IOException e) {
 				System.out.println("Listening error");

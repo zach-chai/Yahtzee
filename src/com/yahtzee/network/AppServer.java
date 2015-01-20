@@ -64,6 +64,7 @@ public class AppServer implements Runnable {
 		} else if(input instanceof Player) {
 			System.out.println("YAY Player");
 			Player player = (Player) input;
+			ServerThread client = clients[findClient(ID)];
 			player.moveDice();
 			System.out.println("Combi: "+player.getMainDice().getCombination());
 			System.out.println(player.getMainDice().getDice().toString());
@@ -71,20 +72,37 @@ public class AppServer implements Runnable {
 				System.out.println("verified");
 				if(gameScore.calculateScore(player.getMainDice()) >= 0) {
 					System.out.println("score added");
+					client.ready();
+					client.endRound();
 					for(int i = 0; i < clientCount; i++) {
 						clients[i].send(gameScore);
 					}
+					startRoundIfAllReady();
 				} else {
-					clients[findClient(ID)].send("Invalid: score already taken");
+					client.send("Invalid: score already taken");
 				}
 			} else {
-				clients[findClient(ID)].send("Invalid: score");
+				client.send("Invalid: score");
 			}
 			player = null;
 		} else {
 			System.out.println("Unknown object");
+		}	
+	}
+	
+	public void startRoundIfAllReady() {
+		boolean allReady = true;
+		
+		for(int i = 0; i < clientCount; i++) {
+			if(!clients[i].isReady())
+				allReady = false;
 		}
 		
+		if(allReady) {
+			for(int i = 0; i < clientCount; i++) {
+				clients[i].startRound();
+			}
+		}
 	}
 	
 	public synchronized void remove(int ID) {
@@ -138,6 +156,9 @@ public class AppServer implements Runnable {
 				clients[clientCount].open();
 				clients[clientCount].start();
 				clientCount++;
+				for(int i = 0; i < clientCount; i++) {
+					clients[i].send("Player "+clientCount+" joined");
+				}
 			} catch (IOException e) {
 				System.out.println("Error opening thread: ");
 //				Trace.exception(e);

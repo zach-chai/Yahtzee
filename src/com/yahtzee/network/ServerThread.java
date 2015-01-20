@@ -17,6 +17,7 @@ public class ServerThread extends Thread {
 	private ObjectInputStream streamIn = null;
 	private ObjectOutputStream streamOut = null;
 	private boolean done = false;
+	private boolean isReady = false;
 
 	public ServerThread(AppServer server, Socket socket) {
 		super();
@@ -39,6 +40,14 @@ public class ServerThread extends Thread {
 //			Trace.exception(e);
 			server.remove(ID);
 		}
+	}
+	
+	public void startRound() {
+		send("start round");
+	}
+	
+	public void endRound() {
+		send("end round");
 	}
 	
 	public void run() {
@@ -72,6 +81,14 @@ public class ServerThread extends Thread {
 			socket.close();
 		if(streamIn != null)
 			streamIn.close();
+	}
+	
+	public boolean isReady() {
+		return isReady;
+	}
+	
+	public void ready() {
+		isReady = true;
 	}
 
 }

@@ -61,6 +61,10 @@ public abstract class Dice implements Serializable {
 		return num;
 	}
 	
+	public void clear() {
+		dice.clear();
+	}
+	
 	public int size() {
 		return this.dice.size();
 	}
