@@ -3,38 +3,29 @@ package com.yahtzee.views;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import com.yahtzee.model.Combination;
 import com.yahtzee.model.GameScore;
 import com.yahtzee.model.Player;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class GUIClient extends JApplet {
 
@@ -44,8 +35,6 @@ public class GUIClient extends JApplet {
 	private ClientThread clientThread = null;
 	private Socket socket = null;
 	private ObjectOutputStream streamOut = null;
-	private String serverPort;
-	private String serverName;
 	private int gameNum;
 	private int diceRolls;
 	private ArrayList<Integer> upperDisabled;
@@ -77,9 +66,6 @@ public class GUIClient extends JApplet {
 	private JLabel heldDiceLabel;
 	
 	public void init() {
-		
-		serverName = Config.DEFAULT_HOST;
-		serverPort = Config.DEFAULT_PORT+"";
 		
 		player = new Player();
 		
@@ -587,8 +573,12 @@ public class GUIClient extends JApplet {
 	}
 	
 	public void connect() {
+		ConnectionPane connectInfo = new ConnectionPane(Config.DEFAULT_HOST, Config.DEFAULT_PORT+"");
+		int option = JOptionPane.showConfirmDialog(null, connectInfo, "Enter server info", JOptionPane.OK_CANCEL_OPTION);
+		if(option == JOptionPane.CANCEL_OPTION)
+			return;
 		try {
-			this.socket = new Socket(serverName, Integer.parseInt(serverPort));
+			this.socket = new Socket(connectInfo.getHost(), Integer.parseInt(connectInfo.getPort()));
 			this.openStreams();
 			clientThread = new ClientThread(this, socket);
 			this.connect.setEnabled(false);
