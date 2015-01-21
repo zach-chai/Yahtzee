@@ -66,6 +66,8 @@ public class ClientThread extends Thread {
 						client.newRound();
 					} else if("end round".equals(msg)) {
 						client.endRound();
+					} else if("game finished".equals(msg)) {
+						client.endGame();
 					} else {
 						client.displayMsg(msg);
 					}					

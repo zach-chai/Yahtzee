@@ -72,7 +72,6 @@ public class AppServer implements Runnable {
 			System.out.println("YAY Player");
 			Player player = (Player) input;
 			player.moveDice();
-			System.out.println("Combi: "+player.getMainDice().getCombination());
 			System.out.println(player.getMainDice().getDice().toString());
 			if(gameScore.calculateScore(player.getMainDice()) >= 0) {
 				System.out.println("score added");
@@ -83,7 +82,7 @@ public class AppServer implements Runnable {
 				}
 				startRoundIfAllReady();
 			} else {
-				client.send("Invalid: score already taken");
+				client.send("Invalid: score");
 			}
 			player = null;
 		} else {
@@ -100,8 +99,14 @@ public class AppServer implements Runnable {
 		}
 		
 		if(allReady) {
-			for(int i = 0; i < clientCount; i++) {
-				clients[i].startRound();
+			if(gameScore.finishedScoring()) {
+				for(int i = 0; i < clientCount; i++) {
+					clients[i].send("game finished");
+				}
+			} else {
+				for(int i = 0; i < clientCount; i++) {
+					clients[i].startRound();
+				}
 			}
 		}
 	}

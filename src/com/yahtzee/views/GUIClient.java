@@ -481,6 +481,14 @@ public class GUIClient extends JApplet {
 		for(JButton b: lowerButtons) {
 			b.setEnabled(false);
 		}
+//		for(int i = 0; i < scoreLabels.length; i++) {
+//			scoreLabels[i].setText(i+"");
+//		}
+	}
+	
+	public void endGame() {
+		displayMsg("Game Finished");
+		newGame.setEnabled(true);
 	}
 	
 	public void endRound() {
@@ -529,12 +537,29 @@ public class GUIClient extends JApplet {
 				i += 7;
 			}
 			if(scores[j] >= 0) {
-				disableScoreButton(j);
+				if(!(j == 12 && scores[j] > 0))
+					disableScoreButton(j);
 				scoreLabels[i].setText(scores[j]+"");
 			}
 			i += 7;
 		}
 		scoreLabels[i].setText(gameScores.yahtzeeBonusToString());
+		boolean end = true;
+		for(int j = 0; j < scores.length; j++) {
+			if(scores[j] < 0)
+				end = false;
+		}
+		if(end)
+			updateScoreBoardTotals(gameScores);
+	}
+	
+	public void updateScoreBoardTotals(GameScore gameScores) {
+		int upperTotal = gameScores.calculateUpperTotal();
+		int lowerTotal = gameScores.calculateLowerTotal();
+		scoreLabels[50].setText(upperTotal+"");
+		scoreLabels[64].setText(upperTotal+gameScores.getBonus()+"");
+		scoreLabels[127].setText(lowerTotal+"");
+		scoreLabels[134].setText(upperTotal+lowerTotal+"");
 	}
 	
 	public void refreshDice() {		

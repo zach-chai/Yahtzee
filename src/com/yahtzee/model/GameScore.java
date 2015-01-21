@@ -33,7 +33,7 @@ public class GameScore implements Serializable {
 		fours = -1;
 		fives = -1;
 		sixes = -1;
-		bonus = -1;
+		bonus = 0;
 		threeKind = -1;
 		fourKind = -1;
 		fullHouse = -1;
@@ -95,9 +95,13 @@ public class GameScore implements Serializable {
 				return -1;
 			return calculateChance(dice);
 		case Combination.YAHTZEE:
-			if(yahtzee >= 0)
+			if(yahtzee > 0) {
 				return calculateYahtzeeBonus(dice);
-			return calculateYahtzee(dice);
+			} else if(yahtzee < 0) {
+				return calculateYahtzee(dice);
+			} else {
+				return -1;
+			}
 		}
 		return -1;
 	}
@@ -170,7 +174,7 @@ public class GameScore implements Serializable {
 	}
 	
 	public int calculateBonus(MainDice dice) {
-		if((aces + twos + threes + fours + fives + sixes) >= 63) {
+		if((calculateUpperTotal()) >= 63) {
 			bonus = 35;
 			return bonus;
 		} else {
@@ -233,8 +237,33 @@ public class GameScore implements Serializable {
 	}
 	
 	public int calculateYahtzeeBonus(MainDice dice) {
-		yahtzeeBonus.add(100);
-		return 100;
+		if(Combination.verifyYahtzee(dice)) {
+			yahtzeeBonus.add(100);
+			return 100;
+		} else {
+			return -1;
+		}
+	}
+	
+	public int getBonus() {
+		return bonus;
+	}
+	
+	public int calculateUpperTotal() {
+		return aces + twos + threes + fours + fives + sixes;
+	}
+	
+	public int calculateLowerTotal() {
+		return threeKind + fourKind + smallStraight + largeStraight + fullHouse + yahtzee + chance + (yahtzeeBonus.size() * 100);
+	}
+	
+	public boolean finishedScoring() {
+		int arr[] = this.toArray();
+		for(int i = 0; i < arr.length; i++) {
+			if(arr[i] == -1)
+				return false;
+		}
+		return true;
 	}
 	
 	public int[] toArray() {
