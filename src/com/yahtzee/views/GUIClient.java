@@ -23,6 +23,7 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -47,6 +48,8 @@ public class GUIClient extends JApplet {
 	private String serverName;
 	private int gameNum;
 	private int diceRolls;
+	private ArrayList<Integer> upperDisabled;
+	private ArrayList<Integer> lowerDisabled;
 	
 	private JPanel scoreBoard;
 	private JPanel south;
@@ -57,13 +60,10 @@ public class GUIClient extends JApplet {
 	private JPanel upperScore;
 	private JPanel lowerScore;
 	
-	private JTextField input;
 	private JTextArea display;
 	
-	private JButton exit;
 	private JButton connect;
 	private JButton rollDice;
-	private JButton send;
 	private JButton newGame;
 	private JButton upperButtons[];
 	private JButton lowerButtons[];
@@ -85,38 +85,15 @@ public class GUIClient extends JApplet {
 		
 		diceRolls = 0;
 		gameNum = 0;
+		upperDisabled = new ArrayList<Integer>();
+		lowerDisabled = new ArrayList<Integer>();
 		
 		rollingDiceButtons = new ArrayList<JButton>();		
 		savedDiceButtons = new ArrayList<JButton>();
 		
-		input = new JTextField();
 		display = new JTextArea();
-		
-		exit = new JButton("Exit");
-		exit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				input.setText("quit");
-				display.setText("");
-				display.append("Game Over" + "\n");
-				
-				exit.setEnabled(false);
-				send.setEnabled(false);
-				connect.setEnabled(false);
-				rollDice.setEnabled(false);
-				display.setEnabled(false);
-				input.setEnabled(false);
-				
-				send();
-				
-				player = null;
-			}
-		});
-		send = new JButton("Send");
-		send.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				send();
-			}
-		});
+		JScrollPane scrollPane = new JScrollPane(display);
+
 		connect = new JButton("Connect");
 		connect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -126,7 +103,7 @@ public class GUIClient extends JApplet {
 		newGame = new JButton("New Game");
 		newGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				newRound();
+				send("round started");
 			}
 		});
 		rollDice = new JButton("Roll Dice");
@@ -134,11 +111,13 @@ public class GUIClient extends JApplet {
 			public void actionPerformed(ActionEvent e) {
 				player.rollDice();
 				refreshDice();
-				for(JButton b: upperButtons) {
-					b.setEnabled(true);
+				for(int i = 0; i < upperButtons.length; i++) {
+					if(!upperDisabled.contains(i))
+						upperButtons[i].setEnabled(true);
 				}
-				for(JButton b: lowerButtons) {
-					b.setEnabled(true);
+				for(int i = 0; i < lowerButtons.length; i++) {
+					if(!lowerDisabled.contains(i))
+						lowerButtons[i].setEnabled(true);
 				}
 				if(++diceRolls == 3) {
 					rollDice.setEnabled(false);
@@ -248,16 +227,14 @@ public class GUIClient extends JApplet {
 		Dimension btDim = new Dimension(85, 25);
 		Dimension diceDim = new Dimension(50, 50);
 		
-		exit.setPreferredSize(btDim);
-		send.setPreferredSize(btDim);
 		connect.setPreferredSize(btDim);
 		rollDice.setPreferredSize(btDim);
+		newGame.setPreferredSize(new Dimension(100, 25));
 		
 		buttons = new JPanel();
 		buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 		buttons.add(connect);
-		buttons.add(exit);
-		buttons.add(send);
+		buttons.add(newGame);
 		buttons.add(rollDice);
 		
 		label = new JLabel("Yahtzee", JLabel.CENTER);
@@ -483,8 +460,7 @@ public class GUIClient extends JApplet {
 		}
 		
 		south = new JPanel();
-		south.setLayout(new GridLayout(6, 1));
-		south.add(input);
+		south.setLayout(new GridLayout(5, 1));
 		south.add(rolling);
 		south.add(saved);
 		south.add(buttons);
@@ -500,7 +476,7 @@ public class GUIClient extends JApplet {
 		game = new JPanel();
 		game.setLayout(new BorderLayout());
 		game.add(title, BorderLayout.NORTH);
-		game.add(display, BorderLayout.CENTER);
+		game.add(scrollPane, BorderLayout.CENTER);
 		game.add(south, BorderLayout.SOUTH);
 		
 		Container container = getContentPane();
@@ -510,8 +486,6 @@ public class GUIClient extends JApplet {
 		
 		this.setSize(1200, 500);
 		
-		exit.setEnabled(false);
-		send.setEnabled(false);
 		connect.setEnabled(true);
 		rollDice.setEnabled(false);
 		newGame.setEnabled(false);
@@ -521,42 +495,6 @@ public class GUIClient extends JApplet {
 		for(JButton b: lowerButtons) {
 			b.setEnabled(false);
 		}
-	}
-	
-	public boolean action(Event e, Object o) {
-		if(e.target == exit) {
-			input.setText("quit");
-			display.setText("");
-			display.append("Game Over" + "\n");
-			
-			exit.setEnabled(false);
-			send.setEnabled(false);
-			connect.setEnabled(false);
-			rollDice.setEnabled(false);
-			display.setEnabled(false);
-			input.setEnabled(false);
-			
-			send();
-			
-			player = null;
-		} else if(e.target == connect) {
-			connect();
-		} else if (e.target == send) {
-			send();
-			input.requestFocus();
-		} else if (e.target == rollDice) {
-			this.player.rollDice();
-			this.refreshDice();
-		} 
-
-		for(JButton b: rollingDiceButtons) {
-			if(e.target == b) {
-				this.player.getSavedDice().addDie(this.player.getMainDice().removeDie(this.player.getMainDice().getDice().get(rollingDiceButtons.indexOf(b))));
-				this.refreshDice();
-			}
-		}
-		
-		return true;
 	}
 	
 	public void endRound() {
@@ -574,23 +512,40 @@ public class GUIClient extends JApplet {
 	}
 	
 	public void newRound() {
-		send("round started");
+		newGame.setEnabled(false);
 		diceRolls = 0;
 		rollDice.setEnabled(true);
 		player.getMainDice().reloadDice();
+	}
+	
+	public void disableScoreButton(int buttonID) {
 		
+		if(buttonID < upperButtons.length - 1) {
+			upperDisabled.add(buttonID);
+		} else if(buttonID >= upperButtons.length - 1) {
+			int lowerID = buttonID - upperButtons.length;
+			if(lowerID == lowerButtons.length) {
+				upperDisabled.add(lowerID);
+			} else {
+				lowerDisabled.add(lowerID);
+			}
+		}
 	}
 	
 	public void updateScoreBoard(GameScore gameScores) {
 		displayMsg("Updating game scores");
+		upperDisabled.clear();
+		lowerDisabled.clear();
 		int[] scores = gameScores.toArray();
 		int i = 8;
 		for(int j = 0; j < scores.length; j++) {
 			if(i == 50 || i == 64) {
 				i += 7;
 			}
-			if(scores[j] != 0)
+			if(scores[j] != 0) {
+				disableScoreButton(j);
 				scoreLabels[i].setText(scores[j]+"");
+			}
 			i += 7;
 		}
 		scoreLabels[i].setText(gameScores.yahtzeeBonusToString());
@@ -618,17 +573,6 @@ public class GUIClient extends JApplet {
 		}
 	}
 	
-	public void send() {
-		try {
-			streamOut.writeObject(input.getText());
-			streamOut.flush();
-			input.setText("");
-		} catch (IOException e) {
-			displayMsg("Error sending message");
-			disconnect();
-		}
-	}
-	
 	public void send(Object input) {
 		displayMsg("sending object");
 		System.out.println(player.getMainDice().getCombination());
@@ -647,10 +591,8 @@ public class GUIClient extends JApplet {
 			this.socket = new Socket(serverName, Integer.parseInt(serverPort));
 			this.openStreams();
 			clientThread = new ClientThread(this, socket);
-			this.send.setEnabled(true);
-			this.exit.setEnabled(true);
 			this.connect.setEnabled(false);
-//			this.label.setText(player.getName() + " on Port: " + socket.getLocalPort());
+			this.newGame.setEnabled(true);
 			displayMsg("Connected");
 		} catch(IOException e) {
 			displayMsg("Connect error: " + e);

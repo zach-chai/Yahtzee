@@ -45,26 +45,32 @@ public class AppServer implements Runnable {
 	public synchronized void handle(int ID, Object input) {
 		if(input == null)
 			return;
-		
+		ServerThread client = clients[findClient(ID)];
 		if(input instanceof String) {
-			if(input.equals("quit")) {
+			String str = (String) input;
+			if(str.equals("quit")) {
 				System.out.println("Removing Client: " + ID);
 				int pos = findClient(ID);
 				if(pos != -1) {
 					clients[pos].send("quit" + "\n");
 					remove(ID);
 				}
+			} else if("round started".equals(str)) {
+				if(clientCount >= 1) { //change this to 2 to prevent single player
+					for(int i = 0; i < clientCount; i++) {
+						clients[i].startRound();
+					}
+				} else {
+					client.send("not enough players");
+				}
 			} else {
 				for(int i = 0; i < clientCount; i++) {
-					System.out.printf("Server: %6d Sending From: %6d Sending To: %6d\n",
-						this.server.getLocalPort(), ID, clients[i].getID());
-					clients[i].send(ID + ": " + input + "\n");
+					clients[i].send(ID + ": " + str + "\n");
 				}
 			}
 		} else if(input instanceof Player) {
 			System.out.println("YAY Player");
 			Player player = (Player) input;
-			ServerThread client = clients[findClient(ID)];
 			player.moveDice();
 			System.out.println("Combi: "+player.getMainDice().getCombination());
 			System.out.println(player.getMainDice().getDice().toString());

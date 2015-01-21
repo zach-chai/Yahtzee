@@ -8,8 +8,6 @@ public class Player implements Serializable {
 	MainDice mainDice;
 	SavedDice savedDice;
 	int score;
-	int id;
-	String name;
 	
 	public Player() {
 		mainDice = new MainDice();

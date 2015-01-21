@@ -9,7 +9,6 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 
 public final class Combination {
 	
-	public static final int YAHTZEE = 0;
 	public static final int ACES = 1;
 	public static final int TWOS = 2;
 	public static final int THREES = 3;
@@ -22,6 +21,7 @@ public final class Combination {
 	public static final int SMALL_STRAIGHT = 10;
 	public static final int LARGE_STRAIGHT = 11;
 	public static final int CHANCE = 12;
+	public static final int YAHTZEE = 13;
 	
 	public static boolean verify(MainDice dice) {
 		switch(dice.getCombination()) {
