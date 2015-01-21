@@ -74,21 +74,16 @@ public class AppServer implements Runnable {
 			player.moveDice();
 			System.out.println("Combi: "+player.getMainDice().getCombination());
 			System.out.println(player.getMainDice().getDice().toString());
-			if(Combination.verify(player.getMainDice())) {
-				System.out.println("verified");
-				if(gameScore.calculateScore(player.getMainDice()) >= 0) {
-					System.out.println("score added");
-					client.ready();
-					client.endRound();
-					for(int i = 0; i < clientCount; i++) {
-						clients[i].send(gameScore);
-					}
-					startRoundIfAllReady();
-				} else {
-					client.send("Invalid: score already taken");
+			if(gameScore.calculateScore(player.getMainDice()) >= 0) {
+				System.out.println("score added");
+				client.ready();
+				client.endRound();
+				for(int i = 0; i < clientCount; i++) {
+					clients[i].send(gameScore);
 				}
+				startRoundIfAllReady();
 			} else {
-				client.send("Invalid: score");
+				client.send("Invalid: score already taken");
 			}
 			player = null;
 		} else {

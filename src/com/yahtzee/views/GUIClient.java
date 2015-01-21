@@ -542,7 +542,7 @@ public class GUIClient extends JApplet {
 			if(i == 50 || i == 64) {
 				i += 7;
 			}
-			if(scores[j] != 0) {
+			if(scores[j] >= 0) {
 				disableScoreButton(j);
 				scoreLabels[i].setText(scores[j]+"");
 			}

@@ -23,25 +23,6 @@ public final class Combination {
 	public static final int CHANCE = 12;
 	public static final int YAHTZEE = 13;
 	
-	public static boolean verify(MainDice dice) {
-		switch(dice.getCombination()) {
-		case ACES: return verifyAces(dice);
-		case TWOS: return verifyTwos(dice);
-		case THREES: return verifyThrees(dice);
-		case FOURS: return verifyFours(dice);
-		case FIVES: return verifyFives(dice);
-		case SIXES: return verifySixes(dice);
-		case THREE_OF_KIND: return verifyThreeOfKind(dice);
-		case FOUR_OF_KIND: return verifyFourOfKind(dice);
-		case FULL_HOUSE: return verifyFullHouse(dice);
-		case SMALL_STRAIGHT: return verifySmallStraight(dice);
-		case LARGE_STRAIGHT: return verifyLargeStraight(dice);
-		case CHANCE: return true;
-		case YAHTZEE: return verifyYahtzee(dice);
-		}
-		return false;
-	}
-	
 	public static boolean verifyYahtzee(MainDice dice) {
 		return dice.numDie(dice.getDice().get(0)) == 5;
 	}
