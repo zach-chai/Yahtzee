@@ -55,7 +55,9 @@ public class AppServer implements Runnable {
 					clients[pos].send("quit" + "\n");
 					remove(ID);
 				}
-			} else if("round started".equals(str)) {
+			} else if("new game".equals(str)) {
+				gameScore = new GameScore();
+			} else if("ready".equals(str)) {
 				if(clientCount >= 1) { //change this to 2 to prevent single player
 					for(int i = 0; i < clientCount; i++) {
 						clients[i].startRound();
@@ -80,10 +82,10 @@ public class AppServer implements Runnable {
 				for(int i = 0; i < clientCount; i++) {
 					clients[i].send(gameScore);
 				}
-				startRoundIfAllReady();
 			} else {
 				client.send("Invalid: score");
 			}
+			startRoundIfAllReady();
 			player = null;
 		} else {
 			System.out.println("Unknown object");
@@ -97,16 +99,20 @@ public class AppServer implements Runnable {
 			if(!clients[i].isReady())
 				allReady = false;
 		}
-		
-		if(allReady) {
-			if(gameScore.finishedScoring()) {
-				for(int i = 0; i < clientCount; i++) {
-					clients[i].send("game finished");
-				}
-			} else {
-				for(int i = 0; i < clientCount; i++) {
-					clients[i].startRound();
-				}
+		if(gameScore.finishedScoring()) {
+			for(int i = 0; i < clientCount; i++) {
+				clients[i].send("game finished");
+			}
+		}
+		else if(allReady) {
+			for(int i = 0; i < clientCount; i++) {
+				clients[i].startRound();
+			}
+			
+		}
+		if(gameScore.finishedScoring() || allReady) {
+			for(int i = 0; i < clientCount; i++) {
+				clients[i].notReady();
 			}
 		}
 	}

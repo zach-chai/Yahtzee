@@ -90,5 +90,9 @@ public class ServerThread extends Thread {
 	public void ready() {
 		isReady = true;
 	}
+	
+	public void notReady() {
+		isReady = false;
+	}
 
 }

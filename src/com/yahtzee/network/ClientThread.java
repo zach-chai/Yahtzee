@@ -60,9 +60,7 @@ public class ClientThread extends Thread {
 					client.updateScoreBoard(((GameScore) o));
 				} else {
 					String msg = (String) o;
-					if("quit".equals(msg)) {
-						client.stop();
-					} else if("start round".equals(msg)) {
+					if("start round".equals(msg)) {
 						client.newRound();
 					} else if("end round".equals(msg)) {
 						client.endRound();

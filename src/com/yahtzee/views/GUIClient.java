@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,10 +25,11 @@ import javax.swing.JTextArea;
 import com.yahtzee.model.Combination;
 import com.yahtzee.model.GameScore;
 import com.yahtzee.model.Player;
+import com.yahtzee.network.AppServer;
 import com.yahtzee.network.ClientThread;
 import com.yahtzee.utils.Config;
 
-public class GUIClient extends JApplet {
+public class GUIClient extends JFrame {
 
 	private static final long serialVersionUID = -3311568690970149278L;
 	
@@ -65,7 +67,7 @@ public class GUIClient extends JApplet {
 	private JLabel mainDiceLabel;
 	private JLabel heldDiceLabel;
 	
-	public void init() {
+	public GUIClient() {
 		
 		player = new Player();
 		
@@ -89,7 +91,7 @@ public class GUIClient extends JApplet {
 		newGame = new JButton("New Game");
 		newGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				send("round started");
+				newGame();
 			}
 		});
 		rollDice = new JButton("Roll Dice");
@@ -97,11 +99,11 @@ public class GUIClient extends JApplet {
 			public void actionPerformed(ActionEvent e) {
 				player.rollDice();
 				refreshDice();
-				for(int i = 0; i < upperButtons.length; i++) {
+				for(int i = 0; i < upperButtons.length; ++i) {
 					if(!upperDisabled.contains(i))
 						upperButtons[i].setEnabled(true);
 				}
-				for(int i = 0; i < lowerButtons.length; i++) {
+				for(int i = 0; i < lowerButtons.length; ++i) {
 					if(!lowerDisabled.contains(i))
 						lowerButtons[i].setEnabled(true);
 				}
@@ -481,6 +483,8 @@ public class GUIClient extends JApplet {
 		for(JButton b: lowerButtons) {
 			b.setEnabled(false);
 		}
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //		for(int i = 0; i < scoreLabels.length; i++) {
 //			scoreLabels[i].setText(i+"");
 //		}
@@ -488,6 +492,8 @@ public class GUIClient extends JApplet {
 	
 	public void endGame() {
 		displayMsg("Game Finished");
+		endRound();
+		
 		newGame.setEnabled(true);
 	}
 	
@@ -512,6 +518,14 @@ public class GUIClient extends JApplet {
 		player.getMainDice().reloadDice();
 	}
 	
+	public void newGame() {
+		send("new game");
+		upperDisabled.clear();
+		lowerDisabled.clear();
+		++gameNum;
+		send("ready");
+	}
+	
 	public void disableScoreButton(int buttonID) {
 		
 		if(buttonID < upperButtons.length - 1) {
@@ -531,9 +545,9 @@ public class GUIClient extends JApplet {
 		upperDisabled.clear();
 		lowerDisabled.clear();
 		int[] scores = gameScores.toArray();
-		int i = 8;
+		int i = 7 + gameNum;
 		for(int j = 0; j < scores.length; j++) {
-			if(i == 50 || i == 64) {
+			if(i == 43 + (7 * gameNum) || i == 57 + (7 * gameNum)) {
 				i += 7;
 			}
 			if(scores[j] >= 0) {
@@ -585,8 +599,6 @@ public class GUIClient extends JApplet {
 	}
 	
 	public void send(Object input) {
-		displayMsg("sending object");
-		System.out.println(player.getMainDice().getCombination());
 		try {
 			streamOut.writeObject(input);
 			streamOut.flush();
@@ -642,6 +654,11 @@ public class GUIClient extends JApplet {
 	
 	public void displayMsg(String msg) {
 		display.append(msg + "\n");
+	}
+	
+	public static void main(String args[]) {
+		GUIClient frame = new GUIClient();
+		frame.setVisible(true);
 	}
 
 }
