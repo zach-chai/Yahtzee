@@ -5,4 +5,5 @@ The purpose of this project was to practice using threads and sockets to support
 
 #### Usage
 Compile 2 jars one with target AppClient.java and AppServer.java
+
 Launch the jars and follow the dialogs to play.
